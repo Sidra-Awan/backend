@@ -10,11 +10,11 @@ router.post("/products", async (req, res) => {
     imageurl: req.body.imageurl,
     productname: req.body.productname,
     size: req.body.size,
+    
     price: req.body.price,
     description: req.body.description,
     category: req.body.category,
     recipe_id: req.body.recipe_id,
-    stock:req.body.stock
   });
   try {
     const dataToSave = data.save();
@@ -26,8 +26,24 @@ router.post("/products", async (req, res) => {
 router.get("/getallproducts", async (req, res) => {
   try {
     const data = await productlisting.find()
+    //   // console.log(data);
 
-
+    //   let products = data.map(async(prod) => {
+        
+    //     let reci = await recipe.findOne({ _id: prod?.recipe_id }).then((recip) => {
+    //       // console.log(recip)
+    //       let obj = {
+    //         ...prod?._doc , 
+    //         recipe : recip
+    //       }
+    //       return obj;
+    //     });
+    //     return reci
+    //   });
+    //   console.log(products)
+    //   return products;
+    // });
+if(!data || data.length < 1) return
     let newArr = []
     for(const val of data){
           let reci = await recipe.findOne({ _id: val?.recipe_id });

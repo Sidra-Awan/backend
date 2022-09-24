@@ -1,15 +1,15 @@
 const express = require("express");
 const router = express.Router();
+const userinfo = require("../models/loginuser");
 const purProduct = require("../models/purchaseproduct");
 const productlisting = require("../models/products");
-const userinfo = require("../models/loginuser");
-const { count } = require("../models/purchaseproduct");
 const purchaseproduct = require("../models/purchaseproduct");
-const nodemailer = require('nodemailer')
+// const nodemailer = require('nodemailer')
+
 router.post("/productpurchase", async (req, res) => {
   try {
     let products = req.body.purchasing;
-    console.log(products);
+    // res.status(400).json({request : req.body})
     let total = 0;
     for (const val of products) {
       let prod = await productlisting.findById(val?.product_id, { price: 1 });
@@ -24,53 +24,37 @@ router.post("/productpurchase", async (req, res) => {
       subtotal: total,
       date: new Date(),
     });
-
+console.log('dhshs',data);
     const dataToSave = data.save();
 
-  
- 
-  const emaill = await userinfo.findById(req.body.userid,{email:1, _id:0})
-
-    console.log(emaill);
-    //email configration
-var transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  post:587,
-  secure:false,
-  service: 'gmail',
-  requireTLS:true,
-  host: 'smtp.ethereal.email',
-    port: 587,
-    auth: {
-        user: 'dina7@ethereal.email',
-        pass: 'QxyyzaXEKMvpJqP94z'
-    }
-  })
-  var mailOptions = {
-    from: 'sidrazafar153@gmail.com',
-    to: 'sidrazafar351@gmail.com',
-    subject: 'Confirmation Email',
-    text: 'Your order has been placed!'
-  };
-  transporter.sendMail(mailOptions,function(err,info){
-    if(err){
-      console.log("error", err)
-    } 
-    else{
-      console.log("email is sent")
-    }
-  })
-
-for (const a of products){
-  console.log(a.product_id);
-  const stockupd= await productlisting.findByIdAndUpdate(a.product_id,{ $inc: { stock: -a.quantity } }, )
-  console.log(stockupd)
-}
 
 
+  //   const emaill = await userinfo.findById(req.body.userid,{email:1, _id:0})
 
-
-
+  //   var transporter = nodemailer.createTransport({
+  //     host: "smtp.gmail.com",
+  //     post:587,
+  //     secure:false,
+  //     requireTLS:true,
+  //       auth: {
+  //           user: 'ranaaiksol12@gmail.com',
+  //           pass: 'ranaaiksol12345'
+  //       }
+  //     })
+  // var mailOptions = {
+  //   from: 'ranaaiksol12@gmail.com',
+  //   to: `${emaill.email}`,
+  //   subject: 'Confirmation Email',
+  //   text: 'Your order has been placed!'
+  // };
+  // transporter.sendMail(mailOptions,function(err,info){
+  //   if(err){
+  //     console.log("error", err)
+  //   } 
+  //   else{
+  //     console.log("email is sent")
+  //   }
+  // })
 
     res.status(200).json({Message : "Your Oredr Added"});
   } catch (error) {
@@ -80,6 +64,7 @@ for (const a of products){
 
 router.get("/trendingprods", async (req, res) => {
   try {
+    
     //geting data of one week
     const data = await purProduct.find(
       { date: { $gte: new Date().getTime() - 7 * 24 * 60 * 60 * 1000 } },
@@ -107,37 +92,13 @@ router.get("/trendingprods", async (req, res) => {
       (frst, scnd) => (frst.count > scnd.count ? frst : scnd),
       1
     );
-
     const tproduct= await productlisting.findById(highest.prodId)
     console.log(tproduct);
-    res.status(200).json({ data:  highest });
 
-    // const vri = newarr.reduce(
-    //   (val, item) => (val.includes(item) ? val : [...val, item]),
-    //   []
-    // );
-    // console.log(vri);
+    
+    res.status(200).json({ data: tproduct });
 
-    // res.status(200).json({ data: vri });
 
-    // const tst = newarr?.reduce((res, value) => {
-
-    //   if (!res[value?.prodId]) {
-    //     res[value?.prodId] = {
-    //       prodId : value?.prodId,
-
-    //       count: 1,
-    //     };
-    //     console.log("abcccc" ,res[value?.prodId])
-    //     result.push(res[value?.prodId]);
-    //   } else {
-    //     res[value?.prodId].count += 1
-
-    //   }
-    //   return res;
-    // }, {});
-
-    // console.log(tst);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -146,7 +107,6 @@ router.get("/trendingprods", async (req, res) => {
 router.get("/discountedproducts", async (req, res) => {
   try {
     const products = await productlisting.find({}, { _id: 1 });
-    console.log(products)
     const orders = await purchaseproduct.find({}, { purchasing: 1 });
     // pushing only product ids in array
     const prodarr = [];

@@ -13,11 +13,7 @@ const addproduct = new mongoose.Schema({
         required: true,
         type: String
     },
-    
-    stock: {
-        required: true,
-        type: Number
-    },
+ 
     price: {
         required: true,
         type: Number
